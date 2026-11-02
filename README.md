@@ -29,7 +29,8 @@ Kalau download YouTube mulai gagal, update yt-dlp: `.venv/bin/pip install -U yt-
 
 1. Tempel link YouTube → **Muat**. Audio di-download ke `tmp/` (WAV mono), beat dideteksi otomatis.
 2. **Import .lab** / **Tempel .lab** hasil prediksi. Tiap kotak beat diberi chord dengan overlap terbesar.
-3. Koreksi chord, lalu **Export .lab**. File audio di `tmp/` langsung dihapus setelah export
+3. Koreksi chord, lalu **Copy .lab** (⌘⇧C) untuk menyalin hasilnya ke clipboard, atau **Download .lab** untuk file.
+   File audio di `tmp/` langsung dihapus setelah copy/download
    (juga saat tab ditutup dan saat server start).
 
 Anotasi tersimpan otomatis di browser per video, jadi kalau tab tertutup, muat link yang sama untuk melanjutkan.

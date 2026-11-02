@@ -329,16 +329,32 @@ function importLab(text) {
   setStatus(`Import ${tl.length} segmen → ${segments().length} segmen di grid`);
 }
 
+function labText() {
+  return segments().map((s) => `${s.s.toFixed(3)} ${s.e.toFixed(3)} ${s.label}`).join('\n') + '\n';
+}
+
+async function copyLab() {
+  const text = labText();
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.append(ta); ta.select();
+    document.execCommand('copy'); ta.remove();
+  }
+  deleteAudio();
+  setStatus(`${segments().length} segmen di-copy ke clipboard. File audio temp sudah dihapus (audio di tab ini tetap bisa diputar).`);
+}
+
 function exportLab() {
-  const lines = segments().map((s) => `${s.s.toFixed(3)} ${s.e.toFixed(3)} ${s.label}`);
-  const blob = new Blob([lines.join('\n') + '\n'], { type: 'text/plain' });
+  const blob = new Blob([labText()], { type: 'text/plain' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = S.session.title.replace(/[\\/:*?"<>|]+/g, '_').trim() + '.lab';
   a.click();
   URL.revokeObjectURL(a.href);
   deleteAudio();
-  setStatus(`Export ${lines.length} segmen. File audio temp sudah dihapus (audio di tab ini tetap bisa diputar).`);
+  setStatus(`Download ${segments().length} segmen. File audio temp sudah dihapus (audio di tab ini tetap bisa diputar).`);
 }
 
 function deleteAudio() {
@@ -409,6 +425,7 @@ $('rate').onchange = () => { audio.playbackRate = +$('rate').value; };
 $('undoBtn').onclick = () => undo(false);
 $('redoBtn').onclick = () => undo(true);
 $('exportBtn').onclick = exportLab;
+$('copyBtn').onclick = copyLab;
 $('labFile').onchange = async (e) => { const f = e.target.files[0]; if (f) importLab(await f.text()); e.target.value = ''; };
 $('pasteBtn').onclick = () => { $('pasteText').value = ''; $('pasteDlg').showModal(); };
 $('pasteDlg').onclose = () => { if ($('pasteDlg').returnValue === 'ok') importLab($('pasteText').value); };
@@ -493,6 +510,7 @@ document.addEventListener('keydown', (e) => {
   if (!S.session || (e.target.matches && e.target.matches('input, textarea, select')) || $('pasteDlg').open) return;
   const k = e.key, mod = e.metaKey || e.ctrlKey;
   if (mod && k.toLowerCase() === 'z') { e.preventDefault(); return undo(e.shiftKey); }
+  if (mod && e.shiftKey && k.toLowerCase() === 'c') { e.preventDefault(); return copyLab(); }
   if (mod) return;
   const perRow = S.grid.bpb * S.grid.bpr * S.grid.sub;
   const c = curChord();
